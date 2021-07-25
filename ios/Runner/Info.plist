@@ -43,5 +43,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_dartobservatory._tcp</string>
+    </array>
+    <key>NSCameraUsageDescription</key>
+    <string>Realtime Object Detection camera use</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Realtime Object Detection photo use</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Realtime Object Detection microphone use</string>
 </dict>
 </plist>

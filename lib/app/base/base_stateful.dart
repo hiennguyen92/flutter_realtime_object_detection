@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
     extends State<T> with AutomaticKeepAliveClientMixin {
-  E? viewModel;
+
+  late E viewModel = Provider.of<E>(context, listen: false);
+
 
   @override
   bool get wantKeepAlive => false;
@@ -18,7 +20,6 @@ abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
         afterFirstBuild(context);
       }
     });
-    viewModel = Provider.of<E>(context, listen: false);
   }
 
   @protected
@@ -31,24 +32,26 @@ abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
     }
   }
 
-
-
   @mustCallSuper
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (viewModel == null) {
-      viewModel = Provider.of<E>(context, listen: false);
-    }
-    return bodyWidget(context);
+    viewModel = Provider.of<E>(context, listen: false);
+    return ChangeNotifierProvider.value(
+        value: viewModel,
+        child: Scaffold(
+            appBar: buildAppBarWidget(context),
+            body: buildBodyWidget(context)
+        )
+    );
   }
 
   @protected
-  Widget bodyWidget(BuildContext context) {
-    return buildBodyWidget(context);
-  }
+  AppBar buildAppBarWidget(BuildContext context);
 
+  @protected
   Widget buildBodyWidget(BuildContext context);
+
 
   Widget loadingWidget() {
     return Container(

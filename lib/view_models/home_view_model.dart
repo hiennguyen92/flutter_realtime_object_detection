@@ -6,7 +6,13 @@ class HomeViewModel extends BaseViewModel<HomeViewState> {
 
   bool _isLoadModel = false;
 
+
   HomeViewModel(BuildContext context) : super(context, HomeViewState());
+
+  void increase() {
+    state.counter++;
+    notifyListeners();
+  }
 
 
 }
