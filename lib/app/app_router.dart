@@ -16,7 +16,7 @@ class AppRoute {
         return MaterialPageRoute(
             settings: settings,
             builder: (_) => ChangeNotifierProvider(
-                create: (context) => HomeViewModel(context),
+                create: (context) => HomeViewModel(context, Provider.of(context, listen: false)),
                 builder: (_, __) => HomeScreen()));
       default:
         return MaterialPageRoute(builder: (_) => SplashScreen());

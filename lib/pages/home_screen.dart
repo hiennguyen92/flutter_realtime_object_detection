@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_realtime_object_detection/app/app_resources.dart';
 import 'package:flutter_realtime_object_detection/app/base/base_stateful.dart';
 import 'package:flutter_realtime_object_detection/main.dart';
+import 'package:flutter_realtime_object_detection/services/tensorflow_service.dart';
 import 'package:flutter_realtime_object_detection/view_models/home_view_model.dart';
+import 'package:flutter_realtime_object_detection/widgets/confidence_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,6 +35,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   void initState() {
     super.initState();
     initCamera();
+    loadModel(ModelType.YOLO);
   }
 
   void initCamera() {
@@ -40,7 +43,22 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     _initializeControllerFuture =
         _cameraController.initialize().then((value) => {
               /// TODO: Run Model
+              setState(() {
+                _cameraController.startImageStream((image) {
+                  runModel(image);
+                });
+              })
             });
+  }
+
+  void loadModel(ModelType type) async {
+    await viewModel.loadModel(type);
+  }
+
+  void runModel(CameraImage image) async {
+    if (mounted) {
+      await viewModel.runModel(image);
+    }
   }
 
   @override
@@ -122,7 +140,9 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                                 ? screenHeight / previewHeight * previewWidth
                                 : screenWidth,
                             child: CameraPreview(_cameraController),
-                          )
+                          ),
+                          ConfidenceWidget(
+                              entities: viewModel.state.recognitions)
                         ],
                       );
                     } else {

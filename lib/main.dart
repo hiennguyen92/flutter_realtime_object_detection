@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_realtime_object_detection/app/app_router.dart';
 import 'package:flutter_realtime_object_detection/services/navigation_service.dart';
+import 'package:flutter_realtime_object_detection/services/tensorflow_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -13,7 +14,8 @@ Future<void> main() async {
   cameras = await availableCameras();
   runApp(MultiProvider(
     providers: <SingleChildWidget>[
-      Provider<NavigationService>(create: (_) => NavigationService())
+      Provider<NavigationService>(create: (_) => NavigationService()),
+      Provider<TensorFlowService>(create: (_) => TensorFlowService())
     ],
     child: Application(),
   ));
