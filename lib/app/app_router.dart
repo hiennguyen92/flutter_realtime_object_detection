@@ -1,14 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_realtime_object_detection/pages/home_screen.dart';
+import 'package:flutter_realtime_object_detection/pages/local_screen.dart';
 import 'package:flutter_realtime_object_detection/pages/splash_screen.dart';
+import 'package:flutter_realtime_object_detection/services/navigation_service.dart';
+import 'package:flutter_realtime_object_detection/services/tensorflow_service.dart';
 import 'package:flutter_realtime_object_detection/view_models/home_view_model.dart';
+import 'package:flutter_realtime_object_detection/view_models/local_view_model.dart';
 import 'package:provider/provider.dart';
 
 class AppRoute {
   static const splashScreen = '/splashScreen';
   static const homeScreen = '/homeScreen';
+  static const localScreen = '/localScreen';
 
-  static Route<Object>? generateRoute(RouteSettings settings) {
+  static final AppRoute _instance = AppRoute._private();
+  factory AppRoute() {
+    return _instance;
+  }
+  AppRoute._private();
+
+  static AppRoute get instance => _instance;
+
+  static Widget createProvider<P extends ChangeNotifier>(
+      P Function(BuildContext context) provider,
+      Widget child,
+      ) {
+    return ChangeNotifierProvider<P>(
+      create: provider,
+      builder: (_, __) {
+        return child;
+      },
+    );
+  }
+
+  Route<Object>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splashScreen:
         return MaterialPageRoute(builder: (_) => SplashScreen());
@@ -16,10 +41,16 @@ class AppRoute {
         return MaterialPageRoute(
             settings: settings,
             builder: (_) => ChangeNotifierProvider(
-                create: (context) => HomeViewModel(context, Provider.of(context, listen: false)),
+                create: (context) => HomeViewModel(context, Provider.of<TensorFlowService>(context, listen: false)),
                 builder: (_, __) => HomeScreen()));
+      case localScreen:
+        return MaterialPageRoute(
+            settings: settings,
+            builder: (_) => ChangeNotifierProvider(
+                create: (context) => LocalViewModel(context, Provider.of<TensorFlowService>(context, listen: false)),
+                builder: (_, __) => LocalScreen()));
       default:
-        return MaterialPageRoute(builder: (_) => SplashScreen());
+        return null;
     }
   }
 }

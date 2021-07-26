@@ -14,6 +14,7 @@ Future<void> main() async {
   cameras = await availableCameras();
   runApp(MultiProvider(
     providers: <SingleChildWidget>[
+      Provider<AppRoute>(create: (_) => AppRoute()),
       Provider<NavigationService>(create: (_) => NavigationService()),
       Provider<TensorFlowService>(create: (_) => TensorFlowService())
     ],
@@ -24,13 +25,14 @@ Future<void> main() async {
 class Application extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final AppRoute appRoute = Provider.of<AppRoute>(context, listen: false);
     return ScreenUtilInit(
         designSize: Size(375, 812),
         builder: () {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: ThemeData.dark(),
-            onGenerateRoute: AppRoute.generateRoute,
+            onGenerateRoute: appRoute.generateRoute,
             initialRoute: AppRoute.splashScreen,
             navigatorKey: NavigationService.navigationKey,
             navigatorObservers: <NavigatorObserver>[

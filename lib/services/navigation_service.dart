@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class NavigationService {
-  // Global navigation key for whole application
+
+  /// Global navigation key for whole application
   static GlobalKey<NavigatorState> navigationKey = GlobalKey<NavigatorState>();
 
+  /// Get app context
+  static BuildContext? get appContext => navigationKey.currentContext;
 
-  // App route observer
+  /// App route observer
   static RouteObserver<Route<dynamic>> routeObserver = RouteObserver<Route<dynamic>>();
 
   /// Pushing new page into navigation stack

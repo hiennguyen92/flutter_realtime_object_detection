@@ -41,9 +41,15 @@ abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
         value: viewModel,
         child: Scaffold(
             appBar: buildAppBarWidget(context),
-            body: buildBodyWidget(context)
+            body: buildBodyWidget(context),
+            floatingActionButton: buildFloatingActionButton(context),
         )
     );
+  }
+
+  @protected
+  Widget buildFloatingActionButton(BuildContext context) {
+    return SizedBox.shrink();
   }
 
   @protected

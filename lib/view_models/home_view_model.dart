@@ -8,7 +8,7 @@ class HomeViewModel extends BaseViewModel<HomeViewState> {
 
   bool _isLoadModel = false;
 
-  TensorFlowService _tensorFlowService;
+  late TensorFlowService _tensorFlowService;
 
 
   HomeViewModel(BuildContext context, this._tensorFlowService) : super(context, HomeViewState());
@@ -32,8 +32,12 @@ class HomeViewModel extends BaseViewModel<HomeViewState> {
         notifyListeners();
       }
     }else{
-      throw 'Please run `loadModel(type)` before running `runModel(cameraImage)`';
+      throw 'Please run `loadModel(type)` before running `runModelOnFrame(cameraImage)`';
     }
+  }
+
+  void close() {
+    this._tensorFlowService.close();
   }
 
 

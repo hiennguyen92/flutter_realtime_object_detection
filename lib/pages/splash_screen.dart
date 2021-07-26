@@ -1,11 +1,6 @@
-
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_realtime_object_detection/app/app_router.dart';
-import 'package:flutter_realtime_object_detection/pages/home_screen.dart';
 import 'package:flutter_realtime_object_detection/services/navigation_service.dart';
 import 'package:provider/provider.dart';
 
@@ -24,12 +19,13 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-      Future.delayed(Duration(seconds: 2), () {
+      Future.delayed(Duration(seconds: 5), () {
         Provider.of<NavigationService>(context, listen: false).pushNamedAndRemoveUntil(AppRoute.homeScreen);
         //Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => HomeScreen()), (_) => false);
       });
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
