@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:tflite/tflite.dart';
 
-enum ModelType { YOLO, SSDMobileNet }
+enum ModelType { YOLO, SSDMobileNet, MobileNet, PoseNet }
 
 class TensorFlowService {
   ModelType _type = ModelType.YOLO;
@@ -19,14 +19,24 @@ class TensorFlowService {
       switch (type) {
         case ModelType.YOLO:
           res = await Tflite.loadModel(
-              model: 'assets/yolov2_tiny.tflite',
-              labels: 'assets/yolov2_tiny.txt');
+              model: 'assets/mode5ls/yolov2_tiny.tflite',
+              labels: 'assets/models/yolov2_tiny.txt');
           break;
         case ModelType.SSDMobileNet:
-        default:
           res = await Tflite.loadModel(
-              model: 'assets/yolov2_tiny.tflite',
-              labels: 'assets/yolov2_tiny.txt');
+              model: 'assets/models/ssd_mobilenet.tflite',
+              labels: 'assets/models/ssd_mobilenet.txt');
+          break;
+        case ModelType.MobileNet:
+          res = await Tflite.loadModel(
+              model: 'assets/models/mobilenet_v1.tflite',
+              labels: 'assets/models/mobilenet_v1.txt');
+          break;
+        case ModelType.PoseNet:
+          res = await Tflite.loadModel(
+              model: 'assets/models/posenet_mv1_checkpoints.tflite');
+          break;
+        default:
       }
       print('loadModel: $res');
     } on PlatformException {
@@ -50,7 +60,7 @@ class TensorFlowService {
         imageMean: 0,
         imageStd: 255.0,
         threshold: 0.2,
-        numResultsPerClass: 1
+        numResultsPerClass: 1,
     );
     print("recognitions: $recognitions");
     return recognitions;

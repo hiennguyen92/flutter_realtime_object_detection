@@ -55,8 +55,13 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/yolov2_tiny.txt
-    - assets/yolov2_tiny.tflite
+    - assets/models/yolov2_tiny.txt
+    - assets/models/yolov2_tiny.tflite
+    - assets/models/ssd_mobilenet.txt
+    - assets/models/ssd_mobilenet.tflite
+    - assets/models/mobilenet_v1.txt
+    - assets/models/mobilenet_v1.tflite
+    - assets/models/posenet_mv1_checkpoints.tflite
     - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

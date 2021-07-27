@@ -9,8 +9,6 @@ import 'package:flutter_realtime_object_detection/services/tensorflow_service.da
 import 'package:flutter_realtime_object_detection/view_models/home_view_model.dart';
 import 'package:flutter_realtime_object_detection/widgets/confidence_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:tflite/tflite.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -23,8 +21,6 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     with WidgetsBindingObserver {
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
-
-  bool isDetecting = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -43,7 +39,8 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   }
 
   void initCamera() {
-    _cameraController = CameraController(cameras[0], ResolutionPreset.medium);
+    _cameraController = CameraController(
+        cameras[viewModel.state.cameraIndex], ResolutionPreset.medium);
     _initializeControllerFuture = _cameraController.initialize().then((_) {
       if (!mounted) {
         return;
@@ -52,14 +49,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
       /// TODO: Run Model
       setState(() {});
       _cameraController.startImageStream((image) async {
-        if (!isDetecting) {
-          isDetecting = true;
-          int startTime = new DateTime.now().millisecondsSinceEpoch;
-          await viewModel.runModel(image);
-          int endTime = new DateTime.now().millisecondsSinceEpoch;
-          print("Detection took ${endTime - startTime}");
-          isDetecting = false;
-        }
+        await viewModel.runModel(image);
       });
     });
   }
@@ -95,31 +85,23 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   }
 
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    if (!_cameraController.value.isInitialized) {
-      return Container();
-    }
-
-    var tmp = MediaQuery.of(context).size;
-    var screenH = max(tmp.height, tmp.width);
-    var screenW = min(tmp.height, tmp.width);
-    tmp = _cameraController.value.previewSize!;
-    var previewH = max(tmp.height, tmp.width);
-    var previewW = min(tmp.height, tmp.width);
-    var screenRatio = screenH / screenW;
-    var previewRatio = previewH / previewW;
-
-    return OverflowBox(
-      maxHeight:
-      screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-      maxWidth:
-      screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-      child: CameraPreview(_cameraController),
+  Widget buildPageWidget(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: buildAppBarWidget(context),
+      body: buildBodyWidget(context),
     );
   }
 
-
+  handleSwitchCameraClick(int item) {
+    switch (item) {
+      case 0:
+      case 1:
+        viewModel.switchCamera();
+        initCamera();
+        break;
+    }
+  }
 
   @override
   AppBar buildAppBarWidget(BuildContext context) {
@@ -128,10 +110,45 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
       centerTitle: true,
       actions: [
         IconButton(
-            onPressed: () {
-              viewModel.increase();
-            },
-            icon: Icon(AppIcons.linkOption, semanticLabel: 'Repo'))
+            onPressed: () {},
+            icon: Icon(AppIcons.linkOption, semanticLabel: 'Repo')),
+        PopupMenuButton<int>(
+            onSelected: (item) => handleSwitchCameraClick(item),
+            color: AppColors.white,
+            itemBuilder: (context) => [
+                  PopupMenuItem(
+                      enabled: viewModel.state.isBackCamera(),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.camera_rear,
+                              color: viewModel.state.isBackCamera()
+                                  ? AppColors.black
+                                  : AppColors.grey),
+                          Text(' Back',
+                              style: AppTextStyles.regularTextStyle(
+                                  color: viewModel.state.isBackCamera()
+                                      ? AppColors.black
+                                      : AppColors.grey)),
+                        ],
+                      ),
+                      value: 0),
+                  PopupMenuItem(
+                      enabled: viewModel.state.isFrontCamera(),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.camera_front,
+                              color: viewModel.state.isFrontCamera()
+                                  ? AppColors.black
+                                  : AppColors.grey),
+                          Text(' Front',
+                              style: AppTextStyles.regularTextStyle(
+                                  color: viewModel.state.isFrontCamera()
+                                      ? AppColors.black
+                                      : AppColors.grey)),
+                        ],
+                      ),
+                      value: 1),
+                ]),
       ],
       backgroundColor: AppColors.blue,
       title: Text(
@@ -182,8 +199,20 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                                 : screenWidth,
                             child: CameraPreview(_cameraController),
                           ),
-                          ConfidenceWidget(
-                              entities: viewModel.state.recognitions)
+                          Consumer<HomeViewModel>(
+                              builder: (_, homeViewModel, __) {
+                            return ConfidenceWidget(
+                              entities: homeViewModel.state.recognitions,
+                              previewHeight: max(
+                                  homeViewModel.state.heightImage,
+                                  homeViewModel.state.widthImage),
+                              previewWidth: min(homeViewModel.state.heightImage,
+                                  homeViewModel.state.widthImage),
+                              screenWidth: MediaQuery.of(context).size.width,
+                              screenHeight: MediaQuery.of(context).size.height,
+                              type: ModelType.YOLO,
+                            );
+                          })
                         ],
                       );
                     } else {

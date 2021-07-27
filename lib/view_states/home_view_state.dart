@@ -1,8 +1,27 @@
 
+import 'package:flutter_realtime_object_detection/services/tensorflow_service.dart';
+
+import '/models/recognition.dart';
+
 class HomeViewState {
 
-  int counter = 0;
+  ModelType type = ModelType.YOLO;
 
-  late List<dynamic> recognitions = <dynamic>[];
+  late List<Recognition> recognitions = <Recognition>[];
+
+  int widthImage = 0;
+
+  int heightImage = 0;
+
+
+  int cameraIndex = 0;
+
+  bool isFrontCamera() {
+    return cameraIndex == 1;
+  }
+
+  bool isBackCamera() {
+    return cameraIndex == 0;
+  }
   
 }

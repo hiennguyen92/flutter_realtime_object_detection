@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 
 abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
     extends State<T> with AutomaticKeepAliveClientMixin {
-
   late E viewModel = Provider.of<E>(context, listen: false);
-
 
   @override
   bool get wantKeepAlive => false;
@@ -36,20 +34,16 @@ abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    viewModel = Provider.of<E>(context, listen: false);
     return ChangeNotifierProvider.value(
-        value: viewModel,
-        child: Scaffold(
-            appBar: buildAppBarWidget(context),
-            body: buildBodyWidget(context),
-            floatingActionButton: buildFloatingActionButton(context),
-        )
-    );
+        value: viewModel, child: buildPageWidget(context));
   }
 
   @protected
-  Widget buildFloatingActionButton(BuildContext context) {
-    return SizedBox.shrink();
+  Widget buildPageWidget(BuildContext context) {
+    return Scaffold(
+      appBar: buildAppBarWidget(context),
+      body: buildBodyWidget(context),
+    );
   }
 
   @protected
@@ -58,12 +52,10 @@ abstract class BaseStateful<T extends StatefulWidget, E extends BaseViewModel>
   @protected
   Widget buildBodyWidget(BuildContext context);
 
-
   Widget loadingWidget() {
     return Container(
         height: MediaQuery.of(context).size.height,
         width: double.infinity,
-        child:
-            Center(child: CircularProgressIndicator(color: Colors.blue)));
+        child: Center(child: CircularProgressIndicator(color: Colors.blue)));
   }
 }
