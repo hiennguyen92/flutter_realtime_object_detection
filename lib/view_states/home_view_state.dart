@@ -23,5 +23,21 @@ class HomeViewState {
   bool isBackCamera() {
     return cameraIndex == 0;
   }
+
+  bool isYolo() {
+    return type == ModelType.YOLO;
+  }
+
+  bool isSSDMobileNet() {
+    return type == ModelType.SSDMobileNet;
+  }
+
+  bool isMobileNet() {
+    return type == ModelType.MobileNet;
+  }
+
+  bool isPoseNet() {
+    return type == ModelType.PoseNet;
+  }
   
 }

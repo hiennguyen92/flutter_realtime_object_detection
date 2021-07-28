@@ -90,17 +90,30 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
       extendBodyBehindAppBar: true,
       appBar: buildAppBarWidget(context),
       body: buildBodyWidget(context),
+      floatingActionButton: buildFloatingActionButton(context),
     );
   }
 
-  handleSwitchCameraClick(int item) {
-    switch (item) {
-      case 0:
-      case 1:
-        viewModel.switchCamera();
-        initCamera();
-        break;
-    }
+  Widget buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      child: Icon(
+        viewModel.state.isBackCamera() ? Icons.camera_front : Icons.camera_rear,
+        color: AppColors.blue,
+      ),
+      tooltip: "Switch Camera",
+      backgroundColor: AppColors.white,
+      onPressed: handleSwitchCameraClick,
+    );
+  }
+
+  handleSwitchCameraClick() {
+    viewModel.switchCamera();
+    initCamera();
+  }
+
+  handleSwitchSource(ModelType item) {
+    loadModel(item);
+    initCamera();
   }
 
   @override
@@ -112,42 +125,74 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
         IconButton(
             onPressed: () {},
             icon: Icon(AppIcons.linkOption, semanticLabel: 'Repo')),
-        PopupMenuButton<int>(
-            onSelected: (item) => handleSwitchCameraClick(item),
+        PopupMenuButton<ModelType>(
+            onSelected: (item) => handleSwitchSource(item),
             color: AppColors.white,
             itemBuilder: (context) => [
                   PopupMenuItem(
-                      enabled: viewModel.state.isBackCamera(),
+                      enabled: viewModel.state.isYolo(),
                       child: Row(
                         children: <Widget>[
-                          Icon(Icons.camera_rear,
-                              color: viewModel.state.isBackCamera()
+                          Icon(Icons.api,
+                              color: viewModel.state.isYolo()
                                   ? AppColors.black
                                   : AppColors.grey),
-                          Text(' Back',
+                          Text(' YOLO',
                               style: AppTextStyles.regularTextStyle(
-                                  color: viewModel.state.isBackCamera()
+                                  color: viewModel.state.isYolo()
                                       ? AppColors.black
                                       : AppColors.grey)),
                         ],
                       ),
-                      value: 0),
+                      value: ModelType.YOLO),
                   PopupMenuItem(
-                      enabled: viewModel.state.isFrontCamera(),
+                      enabled: viewModel.state.isSSDMobileNet(),
                       child: Row(
                         children: <Widget>[
-                          Icon(Icons.camera_front,
-                              color: viewModel.state.isFrontCamera()
+                          Icon(Icons.api,
+                              color: viewModel.state.isSSDMobileNet()
                                   ? AppColors.black
                                   : AppColors.grey),
-                          Text(' Front',
+                          Text(' SSD MobileNet',
                               style: AppTextStyles.regularTextStyle(
-                                  color: viewModel.state.isFrontCamera()
+                                  color: viewModel.state.isSSDMobileNet()
                                       ? AppColors.black
                                       : AppColors.grey)),
                         ],
                       ),
-                      value: 1),
+                      value: ModelType.SSDMobileNet),
+                  PopupMenuItem(
+                      enabled: viewModel.state.isMobileNet(),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.api,
+                              color: viewModel.state.isMobileNet()
+                                  ? AppColors.black
+                                  : AppColors.grey),
+                          Text(' MobileNet',
+                              style: AppTextStyles.regularTextStyle(
+                                  color: viewModel.state.isMobileNet()
+                                      ? AppColors.black
+                                      : AppColors.grey)),
+                        ],
+                      ),
+                      value: ModelType.MobileNet),
+                  PopupMenuItem(
+                      enabled: viewModel.state.isPoseNet(),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.api,
+                              color: viewModel.state.isPoseNet()
+                                  ? AppColors.black
+                                  : AppColors.grey),
+                          Text(' PoseNet',
+                              style: AppTextStyles.regularTextStyle(
+                                  color: viewModel.state.isPoseNet()
+                                      ? AppColors.black
+                                      : AppColors.grey)),
+                        ],
+                      ),
+                      value: ModelType.PoseNet),
                 ]),
       ],
       backgroundColor: AppColors.blue,

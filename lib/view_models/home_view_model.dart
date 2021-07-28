@@ -14,15 +14,15 @@ class HomeViewModel extends BaseViewModel<HomeViewState> {
   HomeViewModel(BuildContext context, this._tensorFlowService)
       : super(context, HomeViewState());
 
-
   Future switchCamera() async {
     state.cameraIndex = state.cameraIndex == 0 ? 1 : 0;
     this.notifyListeners();
   }
 
-
   Future<void> loadModel(ModelType type) async {
-    await this._tensorFlowService.loadModel(type);
+    if (type != this._tensorFlowService.type) {
+      await this._tensorFlowService.loadModel(type);
+    }
     this._isLoadModel = true;
   }
 
@@ -45,7 +45,7 @@ class HomeViewModel extends BaseViewModel<HomeViewState> {
         this._isDetecting = false;
       }
     } else {
-      throw 'Please run `loadModel(type)` before running `runModelOnFrame(cameraImage)`';
+      throw 'Please run `loadModel(type)` before running `runModel(cameraImage)`';
     }
   }
 
