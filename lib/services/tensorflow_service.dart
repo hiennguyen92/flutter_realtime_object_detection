@@ -7,9 +7,9 @@ import 'package:tflite/tflite.dart';
 enum ModelType { YOLO, SSDMobileNet, MobileNet, PoseNet }
 
 class TensorFlowService {
-  ModelType _type = ModelType.YOLO;
+  ModelType? _type;
 
-  ModelType get type => _type;
+  ModelType? get type => _type;
 
   loadModel(ModelType type) async {
     _type = type;
@@ -99,6 +99,7 @@ class TensorFlowService {
             numResults: 2
         );
         break;
+      default:
     }
     print("recognitions: $recognitions");
     return recognitions;

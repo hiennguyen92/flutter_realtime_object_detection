@@ -87,7 +87,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   @override
   Widget buildPageWidget(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: buildAppBarWidget(context),
       body: buildBodyWidget(context),
       floatingActionButton: buildFloatingActionButton(context),
@@ -130,64 +130,64 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
             color: AppColors.white,
             itemBuilder: (context) => [
                   PopupMenuItem(
-                      enabled: viewModel.state.isYolo(),
+                      enabled: !viewModel.state.isYolo(),
                       child: Row(
                         children: <Widget>[
                           Icon(Icons.api,
-                              color: viewModel.state.isYolo()
+                              color: !viewModel.state.isYolo()
                                   ? AppColors.black
                                   : AppColors.grey),
                           Text(' YOLO',
                               style: AppTextStyles.regularTextStyle(
-                                  color: viewModel.state.isYolo()
+                                  color: !viewModel.state.isYolo()
                                       ? AppColors.black
                                       : AppColors.grey)),
                         ],
                       ),
                       value: ModelType.YOLO),
                   PopupMenuItem(
-                      enabled: viewModel.state.isSSDMobileNet(),
+                      enabled: !viewModel.state.isSSDMobileNet(),
                       child: Row(
                         children: <Widget>[
                           Icon(Icons.api,
-                              color: viewModel.state.isSSDMobileNet()
+                              color: !viewModel.state.isSSDMobileNet()
                                   ? AppColors.black
                                   : AppColors.grey),
                           Text(' SSD MobileNet',
                               style: AppTextStyles.regularTextStyle(
-                                  color: viewModel.state.isSSDMobileNet()
+                                  color: !viewModel.state.isSSDMobileNet()
                                       ? AppColors.black
                                       : AppColors.grey)),
                         ],
                       ),
                       value: ModelType.SSDMobileNet),
                   PopupMenuItem(
-                      enabled: viewModel.state.isMobileNet(),
+                      enabled: !viewModel.state.isMobileNet(),
                       child: Row(
                         children: <Widget>[
                           Icon(Icons.api,
-                              color: viewModel.state.isMobileNet()
+                              color: !viewModel.state.isMobileNet()
                                   ? AppColors.black
                                   : AppColors.grey),
                           Text(' MobileNet',
                               style: AppTextStyles.regularTextStyle(
-                                  color: viewModel.state.isMobileNet()
+                                  color: !viewModel.state.isMobileNet()
                                       ? AppColors.black
                                       : AppColors.grey)),
                         ],
                       ),
                       value: ModelType.MobileNet),
                   PopupMenuItem(
-                      enabled: viewModel.state.isPoseNet(),
+                      enabled: !viewModel.state.isPoseNet(),
                       child: Row(
                         children: <Widget>[
                           Icon(Icons.api,
-                              color: viewModel.state.isPoseNet()
+                              color: !viewModel.state.isPoseNet()
                                   ? AppColors.black
                                   : AppColors.grey),
                           Text(' PoseNet',
                               style: AppTextStyles.regularTextStyle(
-                                  color: viewModel.state.isPoseNet()
+                                  color: !viewModel.state.isPoseNet()
                                       ? AppColors.black
                                       : AppColors.grey)),
                         ],
@@ -206,6 +206,8 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
 
   @override
   Widget buildBodyWidget(BuildContext context) {
+    double heightAppBar = AppBar().preferredSize.height;
+
     return Container(
         height: MediaQuery.of(context).size.height,
         width: double.infinity,
@@ -242,11 +244,13 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                             maxWidth: screenRatio > previewRatio
                                 ? screenHeight / previewHeight * previewWidth
                                 : screenWidth,
+
                             child: CameraPreview(_cameraController),
                           ),
                           Consumer<HomeViewModel>(
                               builder: (_, homeViewModel, __) {
                             return ConfidenceWidget(
+                              heightAppBar: heightAppBar,
                               entities: homeViewModel.state.recognitions,
                               previewHeight: max(
                                   homeViewModel.state.heightImage,
@@ -255,7 +259,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                                   homeViewModel.state.widthImage),
                               screenWidth: MediaQuery.of(context).size.width,
                               screenHeight: MediaQuery.of(context).size.height,
-                              type: ModelType.YOLO,
+                              type: homeViewModel.state.type,
                             );
                           })
                         ],

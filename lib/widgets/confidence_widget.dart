@@ -13,8 +13,11 @@ class ConfidenceWidget extends StatelessWidget {
   final double screenHeight;
   final ModelType type;
 
+  final double heightAppBar;
+
   const ConfidenceWidget(
       {Key? key,
+      required this.heightAppBar,
       required this.entities,
       required this.previewWidth,
       required this.previewHeight,
@@ -23,13 +26,84 @@ class ConfidenceWidget extends StatelessWidget {
       required this.type})
       : super(key: key);
 
+
+  List<Widget> _renderPoseNet() {
+    var lists = <Widget>[];
+    this.entities.forEach((re) {
+      var list = re.keypoints!.map<Widget>((k) {
+        var _x = k.x;
+        var _y = k.y;
+        var scaleWidth, scaleHeight, x, y;
+
+        var screenRatio = this.screenHeight / this.screenWidth;
+        var previewRatio = this.previewHeight / this.previewWidth;
+
+        if (screenRatio > previewRatio) {
+          scaleWidth = screenHeight / previewRatio;
+          scaleHeight = screenHeight;
+          var difW = (scaleWidth - screenWidth) / scaleWidth;
+          x = (_x - difW / 2) * scaleWidth;
+          y = _y * scaleHeight;
+        } else {
+          scaleHeight = screenWidth * previewRatio;
+          scaleWidth = screenWidth;
+          var difH = (scaleHeight - screenHeight) / scaleHeight;
+          x = _x * scaleWidth;
+          y = (_y - difH / 2) * scaleHeight;
+        }
+        return Positioned(
+          left: x - 10,
+          top: y - 56,
+          width: 100,
+          height: 15,
+          child: Container(
+            child: Text(
+              "● ${k.part}",
+              style: TextStyle(
+                color: Color.fromRGBO(37, 213, 253, 1.0),
+                fontSize: 12.0,
+              ),
+            ),
+          ),
+        );
+      }).toList();
+      lists..addAll(list);
+    });
+    return lists;
+  }
+
+
+
+  List<Widget> _renderStringEntities() {
+    List<Widget> results = <Widget>[];
+    double offset = 0;
+    results = this.entities.map((entity) {
+      offset = offset + 20;
+      print(entity);
+      return Positioned(
+          left: 10,
+          top: offset,
+          width: this.screenWidth,
+          height: this.screenHeight,
+          child: Text(
+            '${entity.label ?? ''} ${((entity.confidence ?? 0) * 100).toStringAsFixed(0)}%',
+            style: AppTextStyles.regularTextStyle(
+                color: Colors.red,
+                fontSize: AppFontSizes.extraExtraSmall,
+                backgroundColor: AppColors.white),
+          ));
+    }).toList();
+
+    return results;
+  }
+
   List<Widget> _renderHeightLineEntities() {
     List<Widget> results = <Widget>[];
     results = this.entities.map((entity) {
-      var _x = entity.rect.x;
-      var _y = entity.rect.y;
-      var _w = entity.rect.w;
-      var _h = entity.rect.h;
+      var _x = entity.rect!.x;
+      var _y = entity.rect!.y;
+      var _w = entity.rect!.w;
+      var _h = entity.rect!.h;
 
       var screenRatio = this.screenHeight / this.screenWidth;
       var previewRatio = this.previewHeight / this.previewWidth;
@@ -69,8 +143,11 @@ class ConfidenceWidget extends StatelessWidget {
             border: Border.all(color: Colors.red, width: 2.0),
           ),
           child: Text(
-            '${entity.detectedClass} ${(entity.confidenceInClass * 100).toStringAsFixed(0)}%',
-            style: AppTextStyles.regularTextStyle(color: Colors.red, fontSize: AppFontSizes.extraExtraSmall, backgroundColor: AppColors.white),
+            '${entity.detectedClass ?? ''} ${((entity.confidenceInClass ?? 0) * 100).toStringAsFixed(0)}%',
+            style: AppTextStyles.regularTextStyle(
+                color: Colors.red,
+                fontSize: AppFontSizes.extraExtraSmall,
+                backgroundColor: AppColors.white),
           ),
         ),
       );
@@ -80,8 +157,23 @@ class ConfidenceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> childes = [];
+    switch (type) {
+      case ModelType.YOLO:
+      case ModelType.SSDMobileNet:
+        childes = _renderHeightLineEntities();
+        break;
+      case ModelType.MobileNet:
+        childes = _renderStringEntities();
+        break;
+      case ModelType.PoseNet:
+        childes = _renderPoseNet();
+        break;
+      default:
+        childes = [];
+    }
     return Stack(
-      children: _renderHeightLineEntities(),
+      children: childes,
     );
   }
 }

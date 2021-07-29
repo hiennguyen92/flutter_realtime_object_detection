@@ -20,6 +20,7 @@ class HomeViewModel extends BaseViewModel<HomeViewState> {
   }
 
   Future<void> loadModel(ModelType type) async {
+    state.type = type;
     if (type != this._tensorFlowService.type) {
       await this._tensorFlowService.loadModel(type);
     }
