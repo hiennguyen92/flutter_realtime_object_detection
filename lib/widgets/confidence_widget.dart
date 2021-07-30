@@ -52,20 +52,23 @@ class ConfidenceWidget extends StatelessWidget {
           y = (_y - difH / 2) * scaleHeight;
         }
         return Positioned(
-          left: x - 10,
-          top: y - 56,
+          left: x - 15,
+          top: y - heightAppBar,
           width: 100,
           height: 15,
-          child: Container(
-            child: Text(
-              "● ${k.part}",
-              style: TextStyle(
-                color: Color.fromRGBO(37, 213, 253, 1.0),
-                fontSize: 12.0,
-              ),
-            ),
-          ),
-        );
+          child: Row( children: <Widget>[
+            Icon(Icons.api,
+                size: AppFontSizes.small,
+                color: AppColors.blue),
+            Text(
+                " ${k.part}",
+                style: AppTextStyles.regularTextStyle(
+                    color: Colors.red,
+                    fontSize: AppFontSizes.extraExtraSmall,
+                    backgroundColor: AppColors.white)
+            )
+          ]
+        ));
       }).toList();
       lists..addAll(list);
     });
