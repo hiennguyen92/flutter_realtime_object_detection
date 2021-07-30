@@ -7,10 +7,14 @@ import 'package:flutter_realtime_object_detection/app/base/base_stateful.dart';
 import 'package:flutter_realtime_object_detection/main.dart';
 import 'package:flutter_realtime_object_detection/services/tensorflow_service.dart';
 import 'package:flutter_realtime_object_detection/view_models/home_view_model.dart';
+import 'package:flutter_realtime_object_detection/widgets/aperture/aperture_widget.dart';
 import 'package:flutter_realtime_object_detection/widgets/confidence_widget.dart';
 import 'package:provider/provider.dart';
 
+
 class HomeScreen extends StatefulWidget {
+
+
   @override
   State<StatefulWidget> createState() {
     return _HomeScreenState();
@@ -21,6 +25,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     with WidgetsBindingObserver {
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
+
 
   @override
   bool get wantKeepAlive => true;
@@ -261,7 +266,10 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                               screenHeight: MediaQuery.of(context).size.height,
                               type: homeViewModel.state.type,
                             );
-                          })
+                          }),
+                          ApertureWidget(
+                            controller: ApertureWidgetController
+                          )
                         ],
                       );
                     } else {
@@ -273,3 +281,4 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
         ));
   }
 }
+

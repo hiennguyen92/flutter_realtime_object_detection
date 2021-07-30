@@ -21,7 +21,6 @@ class _SplashScreenState extends State<SplashScreen> {
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(seconds: 5), () {
         Provider.of<NavigationService>(context, listen: false).pushNamedAndRemoveUntil(AppRoute.homeScreen);
-        //Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => HomeScreen()), (_) => false);
       });
     });
   }
