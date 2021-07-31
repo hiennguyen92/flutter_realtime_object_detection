@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
@@ -11,10 +12,7 @@ import 'package:flutter_realtime_object_detection/widgets/aperture/aperture_widg
 import 'package:flutter_realtime_object_detection/widgets/confidence_widget.dart';
 import 'package:provider/provider.dart';
 
-
 class HomeScreen extends StatefulWidget {
-
-
   @override
   State<StatefulWidget> createState() {
     return _HomeScreenState();
@@ -26,6 +24,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
 
+  late StreamController<Map> apertureController;
 
   @override
   bool get wantKeepAlive => true;
@@ -41,6 +40,8 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     super.initState();
     loadModel(ModelType.YOLO);
     initCamera();
+
+    apertureController = StreamController<Map>.broadcast();
   }
 
   void initCamera() {
@@ -74,6 +75,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     super.dispose();
     WidgetsBinding.instance?.removeObserver(this);
     viewModel.close();
+    apertureController.close();
   }
 
   @override
@@ -112,8 +114,11 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   }
 
   handleSwitchCameraClick() {
-    viewModel.switchCamera();
-    initCamera();
+    apertureController.sink.add({});
+    Future.delayed(Duration(microseconds: 1000), () {
+      viewModel.switchCamera();
+      initCamera();
+    });
   }
 
   handleSwitchSource(ModelType item) {
@@ -128,7 +133,9 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
       centerTitle: true,
       actions: [
         IconButton(
-            onPressed: () {},
+            onPressed: () {
+              apertureController.sink.add({});
+            },
             icon: Icon(AppIcons.linkOption, semanticLabel: 'Repo')),
         PopupMenuButton<ModelType>(
             onSelected: (item) => handleSwitchSource(item),
@@ -249,7 +256,6 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                             maxWidth: screenRatio > previewRatio
                                 ? screenHeight / previewHeight * previewWidth
                                 : screenWidth,
-
                             child: CameraPreview(_cameraController),
                           ),
                           Consumer<HomeViewModel>(
@@ -267,8 +273,16 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
                               type: homeViewModel.state.type,
                             );
                           }),
-                          ApertureWidget(
-                            controller: ApertureWidgetController
+                          OverflowBox(
+                            maxHeight: screenRatio > previewRatio
+                                ? screenHeight
+                                : screenWidth / previewWidth * previewHeight,
+                            maxWidth: screenRatio > previewRatio
+                                ? screenHeight / previewHeight * previewWidth
+                                : screenWidth,
+                            child: ApertureWidget(
+                              apertureController: apertureController,
+                            ),
                           )
                         ],
                       );
@@ -281,4 +295,3 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
         ));
   }
 }
-

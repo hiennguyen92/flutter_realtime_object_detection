@@ -114,7 +114,7 @@ class _ApertureLeafState extends State<ApertureLeaf>
             ),
           Container(
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 1)),
+                border: Border.all(color: Colors.white, width: 0)),
             child: Stack(
               alignment: Alignment.center,
               children: <Widget>[
