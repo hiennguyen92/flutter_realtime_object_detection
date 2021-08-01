@@ -53,5 +53,10 @@
     <string>Realtime Object Detection photo use</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Realtime Object Detection microphone use</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>https</string>
+      <string>http</string>
+    </array>
 </dict>
 </plist>

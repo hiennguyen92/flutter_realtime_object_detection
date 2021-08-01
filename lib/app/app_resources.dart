@@ -82,4 +82,5 @@ class AppStrings {
   AppStrings._();
 
   static const title = 'Realtime Object Detection';
+  static const urlRepo = 'https://github.com/hiennguyen92/flutter_realtime_object_detection';
 }

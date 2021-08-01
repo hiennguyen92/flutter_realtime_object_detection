@@ -39,6 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
         )
       ),
       padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
+      child: Icon(Icons.image),
     );
   }
 }

@@ -13,12 +13,15 @@ class ApertureLeaf extends StatefulWidget {
 
   final Widget? child;
 
+  final bool isShowChild;
+
   ApertureLeaf(
       {required this.borderWidth,
       required this.parentWidth,
       this.animationController,
       this.curvedAnimation,
       this.child,
+      this.isShowChild = false,
       this.startOpened = true});
 
   @override
@@ -49,7 +52,7 @@ class _ApertureLeafState extends State<ApertureLeaf>
     animationController = (widget.animationController != null
         ? widget.animationController
         : AnimationController(
-            vsync: this, duration: Duration(milliseconds: 2200)))!;
+            vsync: this, duration: Duration(milliseconds: 500)))!;
 
     curvedAnimation = (widget.curvedAnimation != null
         ? widget.curvedAnimation
@@ -105,7 +108,7 @@ class _ApertureLeafState extends State<ApertureLeaf>
       return Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          if (widget.child != null)
+          if (widget.child != null && widget.isShowChild)
             Container(
               alignment: Alignment.center,
               width: constraints.maxWidth,

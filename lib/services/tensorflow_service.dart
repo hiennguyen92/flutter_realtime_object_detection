@@ -86,7 +86,7 @@ class TensorFlowService {
           }).toList(),
           imageHeight: image.height,
           imageWidth: image.width,
-          numResults: 2
+          numResults: 5
         );
         break;
       case ModelType.PoseNet:
@@ -96,7 +96,7 @@ class TensorFlowService {
             }).toList(),
             imageHeight: image.height,
             imageWidth: image.width,
-            numResults: 2
+            numResults: 5
         );
         break;
       default:

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_realtime_object_detection/app/app_resources.dart';
 import 'package:flutter_realtime_object_detection/app/base/base_stateful.dart';
 import 'package:flutter_realtime_object_detection/main.dart';
@@ -10,7 +12,10 @@ import 'package:flutter_realtime_object_detection/services/tensorflow_service.da
 import 'package:flutter_realtime_object_detection/view_models/home_view_model.dart';
 import 'package:flutter_realtime_object_detection/widgets/aperture/aperture_widget.dart';
 import 'package:flutter_realtime_object_detection/widgets/confidence_widget.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -25,6 +30,10 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   late Future<void> _initializeControllerFuture;
 
   late StreamController<Map> apertureController;
+
+  late ScreenshotController screenshotController;
+
+  late Uint8List _imageFile;
 
   @override
   bool get wantKeepAlive => true;
@@ -42,6 +51,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     initCamera();
 
     apertureController = StreamController<Map>.broadcast();
+    screenshotController = ScreenshotController();
   }
 
   void initCamera() {
@@ -94,36 +104,82 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   @override
   Widget buildPageWidget(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: false,
-      appBar: buildAppBarWidget(context),
-      body: buildBodyWidget(context),
-      floatingActionButton: buildFloatingActionButton(context),
-    );
+        extendBodyBehindAppBar: false,
+        appBar: buildAppBarWidget(context),
+        body: buildBodyWidget(context),
+        floatingActionButton: buildFloatingActionButton(context),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat);
   }
 
   Widget buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      child: Icon(
-        viewModel.state.isBackCamera() ? Icons.camera_front : Icons.camera_rear,
-        color: AppColors.blue,
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          FloatingActionButton(
+            heroTag: null,
+            onPressed: handleCaptureClick,
+            tooltip: "Capture",
+            backgroundColor: AppColors.white,
+            child: Icon(
+              Icons.cut_outlined,
+              color: AppColors.blue,
+            ),
+          ),
+          FloatingActionButton(
+            heroTag: null,
+            onPressed: handleSwitchCameraClick,
+            tooltip: "Switch Camera",
+            backgroundColor: AppColors.white,
+            child: Icon(
+              viewModel.state.isBackCamera()
+                  ? Icons.camera_front
+                  : Icons.camera_rear,
+              color: AppColors.blue,
+            ),
+          ),
+        ],
       ),
-      tooltip: "Switch Camera",
-      backgroundColor: AppColors.white,
-      onPressed: handleSwitchCameraClick,
     );
   }
 
-  handleSwitchCameraClick() {
+  Future<bool> handleSwitchCameraClick() async {
     apertureController.sink.add({});
-    Future.delayed(Duration(microseconds: 1000), () {
-      viewModel.switchCamera();
-      initCamera();
-    });
+    viewModel.switchCamera();
+    initCamera();
+    return true;
   }
 
   handleSwitchSource(ModelType item) {
+    apertureController.sink.add({});
+    viewModel.switchCamera();
+    viewModel.switchCamera();
     loadModel(item);
     initCamera();
+  }
+
+  Future<bool> handleCaptureClick() async {
+    screenshotController.capture().then((value) async {
+      if (value != null) {
+        final result = await ImageGallerySaver.saveImage(value,
+            quality: 100, name: 'realtime_object_detection_${DateTime.now()}');
+
+        final cameraImage = await _cameraController.takePicture();
+        final bytes = await cameraImage.readAsBytes();
+        final result2 = await ImageGallerySaver.saveImage(bytes,
+            quality: 100, name: 'realtime_object_detection_camera_${DateTime.now()}');
+        print(result);
+        print(result2);
+      }
+    });
+    return true;
+  }
+
+  _gotoRepo() async {
+    if (await canLaunch(AppStrings.urlRepo)) {
+      await launch(AppStrings.urlRepo);
+    } else {}
   }
 
   @override
@@ -134,7 +190,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
       actions: [
         IconButton(
             onPressed: () {
-              apertureController.sink.add({});
+              _gotoRepo();
             },
             icon: Icon(AppIcons.linkOption, semanticLabel: 'Repo')),
         PopupMenuButton<ModelType>(
@@ -220,78 +276,74 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   Widget buildBodyWidget(BuildContext context) {
     double heightAppBar = AppBar().preferredSize.height;
 
+    bool isInitialized = _cameraController.value.isInitialized;
+
+    final Size screen = MediaQuery.of(context).size;
+    final double screenHeight = max(screen.height, screen.width);
+    final double screenWidth = min(screen.height, screen.width);
+
+    final Size previewSize =
+        isInitialized ? _cameraController.value.previewSize! : Size(100, 100);
+    final double previewHeight = max(previewSize.height, previewSize.width);
+    final double previewWidth = min(previewSize.height, previewSize.width);
+
+    final double screenRatio = screenHeight / screenWidth;
+    final double previewRatio = previewHeight / previewWidth;
+    final maxHeight =
+        screenRatio > previewRatio ? screenHeight : screenWidth * previewRatio;
+    final maxWidth =
+        screenRatio > previewRatio ? screenHeight / previewRatio : screenWidth;
+
     return Container(
         height: MediaQuery.of(context).size.height,
         width: double.infinity,
-        decoration: BoxDecoration(
-            color: AppColors.blue.withOpacity(0.4),
-            border: Border.all(color: AppColors.blue, width: 2)),
+        color: Colors.grey.shade900,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Container(
               width: MediaQuery.of(context).size.width,
-              child: FutureBuilder<void>(
-                  future: _initializeControllerFuture,
-                  builder: (_, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      final Size screen = MediaQuery.of(context).size;
-                      final double screenHeight =
-                          max(screen.height, screen.width);
-                      final double screenWidth =
-                          min(screen.height, screen.width);
-                      final Size previewSize =
-                          _cameraController.value.previewSize!;
-                      final double previewHeight =
-                          max(previewSize.height, previewSize.width);
-                      final double previewWidth =
-                          min(previewSize.height, previewSize.width);
-                      final double screenRatio = screenHeight / screenWidth;
-                      final double previewRatio = previewHeight / previewWidth;
-                      return Stack(
-                        children: <Widget>[
-                          OverflowBox(
-                            maxHeight: screenRatio > previewRatio
-                                ? screenHeight
-                                : screenWidth / previewWidth * previewHeight,
-                            maxWidth: screenRatio > previewRatio
-                                ? screenHeight / previewHeight * previewWidth
-                                : screenWidth,
-                            child: CameraPreview(_cameraController),
-                          ),
-                          Consumer<HomeViewModel>(
-                              builder: (_, homeViewModel, __) {
-                            return ConfidenceWidget(
-                              heightAppBar: heightAppBar,
-                              entities: homeViewModel.state.recognitions,
-                              previewHeight: max(
-                                  homeViewModel.state.heightImage,
-                                  homeViewModel.state.widthImage),
-                              previewWidth: min(homeViewModel.state.heightImage,
-                                  homeViewModel.state.widthImage),
-                              screenWidth: MediaQuery.of(context).size.width,
-                              screenHeight: MediaQuery.of(context).size.height,
-                              type: homeViewModel.state.type,
-                            );
-                          }),
-                          OverflowBox(
-                            maxHeight: screenRatio > previewRatio
-                                ? screenHeight
-                                : screenWidth / previewWidth * previewHeight,
-                            maxWidth: screenRatio > previewRatio
-                                ? screenHeight / previewHeight * previewWidth
-                                : screenWidth,
-                            child: ApertureWidget(
-                              apertureController: apertureController,
-                            ),
-                          )
-                        ],
-                      );
-                    } else {
-                      return const Center(
-                          child:
-                              CircularProgressIndicator(color: AppColors.blue));
-                    }
-                  })),
+              child: Screenshot(
+                  controller: screenshotController,
+                  child: Stack(
+                    children: <Widget>[
+                      OverflowBox(
+                        maxHeight: maxHeight,
+                        maxWidth: maxWidth,
+                        child: FutureBuilder<void>(
+                            future: _initializeControllerFuture,
+                            builder: (_, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                return CameraPreview(_cameraController);
+                              } else {
+                                return const Center(
+                                    child: CircularProgressIndicator(
+                                        color: AppColors.blue));
+                              }
+                            }),
+                      ),
+                      Consumer<HomeViewModel>(builder: (_, homeViewModel, __) {
+                        return ConfidenceWidget(
+                          heightAppBar: heightAppBar,
+                          entities: homeViewModel.state.recognitions,
+                          previewHeight: max(homeViewModel.state.heightImage,
+                              homeViewModel.state.widthImage),
+                          previewWidth: min(homeViewModel.state.heightImage,
+                              homeViewModel.state.widthImage),
+                          screenWidth: MediaQuery.of(context).size.width,
+                          screenHeight: MediaQuery.of(context).size.height,
+                          type: homeViewModel.state.type,
+                        );
+                      }),
+                      OverflowBox(
+                        maxHeight: maxHeight,
+                        maxWidth: maxWidth,
+                        child: ApertureWidget(
+                          apertureController: apertureController,
+                        ),
+                      )
+                    ],
+                  ))),
         ));
   }
 }

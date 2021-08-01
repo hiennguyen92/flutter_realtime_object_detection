@@ -26,7 +26,6 @@ class ConfidenceWidget extends StatelessWidget {
       required this.type})
       : super(key: key);
 
-
   List<Widget> _renderPoseNet() {
     var lists = <Widget>[];
     this.entities.forEach((re) {
@@ -52,30 +51,23 @@ class ConfidenceWidget extends StatelessWidget {
           y = (_y - difH / 2) * scaleHeight;
         }
         return Positioned(
-          left: x - 15,
-          top: y - heightAppBar,
-          width: 100,
-          height: 15,
-          child: Row( children: <Widget>[
-            Icon(Icons.api,
-                size: AppFontSizes.small,
-                color: AppColors.blue),
-            Text(
-                " ${k.part}",
-                style: AppTextStyles.regularTextStyle(
-                    color: Colors.red,
-                    fontSize: AppFontSizes.extraExtraSmall,
-                    backgroundColor: AppColors.white)
-            )
-          ]
-        ));
+            left: x - 15,
+            top: y - heightAppBar,
+            width: 100,
+            height: 15,
+            child: Row(children: <Widget>[
+              Icon(Icons.api, size: AppFontSizes.small, color: AppColors.blue),
+              Text(" ${k.part}",
+                  style: AppTextStyles.regularTextStyle(
+                      color: Colors.red,
+                      fontSize: AppFontSizes.extraExtraSmall,
+                      backgroundColor: AppColors.white))
+            ]));
       }).toList();
       lists..addAll(list);
     });
     return lists;
   }
-
-
 
   List<Widget> _renderStringEntities() {
     List<Widget> results = <Widget>[];
@@ -147,6 +139,7 @@ class ConfidenceWidget extends StatelessWidget {
           ),
           child: Text(
             '${entity.detectedClass ?? ''} ${((entity.confidenceInClass ?? 0) * 100).toStringAsFixed(0)}%',
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.regularTextStyle(
                 color: Colors.red,
                 fontSize: AppFontSizes.extraExtraSmall,

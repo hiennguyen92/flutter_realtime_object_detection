@@ -25,6 +25,8 @@ class _ApertureWidgetState extends State<ApertureWidget>
   late AnimationController animationController;
   late StreamSubscription streamSubscription;
 
+  bool _isShowChild = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,13 +40,10 @@ class _ApertureWidgetState extends State<ApertureWidget>
 
     animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Future.delayed(const Duration(milliseconds: 200), () {
+        Future.delayed(const Duration(milliseconds: 800), () {
           animationController.reverse();
         });
       } else if (status == AnimationStatus.dismissed) {
-        // Future.delayed(const Duration(milliseconds: 10000), () {
-        //   animationController.forward();
-        // });
       }
     });
     animationController.forward();
@@ -73,6 +72,7 @@ class _ApertureWidgetState extends State<ApertureWidget>
                 parentWidth: MediaQuery.of(context).size.width + 100,
                 animationController: animationController,
                 borderWidth: 2.0,
+                isShowChild: _isShowChild,
                 child: widget.child,
               ),
             ),
