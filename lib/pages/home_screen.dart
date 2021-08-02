@@ -6,8 +6,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_realtime_object_detection/app/app_resources.dart';
+import 'package:flutter_realtime_object_detection/app/app_router.dart';
 import 'package:flutter_realtime_object_detection/app/base/base_stateful.dart';
 import 'package:flutter_realtime_object_detection/main.dart';
+import 'package:flutter_realtime_object_detection/services/navigation_service.dart';
 import 'package:flutter_realtime_object_detection/services/tensorflow_service.dart';
 import 'package:flutter_realtime_object_detection/view_models/home_view_model.dart';
 import 'package:flutter_realtime_object_detection/widgets/aperture/aperture_widget.dart';
@@ -47,7 +49,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   @override
   void initState() {
     super.initState();
-    loadModel(ModelType.YOLO);
+    loadModel(viewModel.state.type);
     initCamera();
 
     apertureController = StreamController<Map>.broadcast();
@@ -65,6 +67,9 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
       /// TODO: Run Model
       setState(() {});
       _cameraController.startImageStream((image) async {
+        if (!mounted) {
+          return;
+        }
         await viewModel.runModel(image);
       });
     });
@@ -84,6 +89,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   void dispose() {
     super.dispose();
     WidgetsBinding.instance?.removeObserver(this);
+    _cameraController.dispose();
     viewModel.close();
     apertureController.close();
   }
@@ -152,11 +158,9 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   }
 
   handleSwitchSource(ModelType item) {
-    apertureController.sink.add({});
-    viewModel.switchCamera();
-    viewModel.switchCamera();
-    loadModel(item);
-    initCamera();
+    viewModel.dispose();
+    viewModel.updateTypeTfLite(item);
+    Provider.of<NavigationService>(context, listen: false).pushReplacementNamed(AppRoute.homeScreen, args: { 'isWithoutAnimation': true });
   }
 
   Future<bool> handleCaptureClick() async {

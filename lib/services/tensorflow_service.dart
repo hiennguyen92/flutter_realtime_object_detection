@@ -7,12 +7,15 @@ import 'package:tflite/tflite.dart';
 enum ModelType { YOLO, SSDMobileNet, MobileNet, PoseNet }
 
 class TensorFlowService {
-  ModelType? _type;
+  ModelType _type = ModelType.YOLO;
 
-  ModelType? get type => _type;
+  ModelType get type => _type;
+
+  set type(type) {
+    _type = type;
+  }
 
   loadModel(ModelType type) async {
-    _type = type;
     try {
       Tflite.close();
       String? res;
@@ -37,15 +40,18 @@ class TensorFlowService {
               model: 'assets/models/posenet_mv1_checkpoints.tflite');
           break;
         default:
+          res = await Tflite.loadModel(
+              model: 'assets/models/yolov2_tiny.tflite',
+              labels: 'assets/models/yolov2_tiny.txt');
       }
-      print('loadModel: $res');
+      print('loadModel: $res - $_type');
     } on PlatformException {
       print('Failed to load model.');
     }
   }
 
-  close() {
-    Tflite.close();
+  close() async {
+    await Tflite.close();
   }
 
   Future<List<dynamic>?> runModelOnFrame(CameraImage image) async {

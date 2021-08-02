@@ -22,9 +22,9 @@ class AppRoute {
   static AppRoute get instance => _instance;
 
   static Widget createProvider<P extends ChangeNotifier>(
-      P Function(BuildContext context) provider,
-      Widget child,
-      ) {
+    P Function(BuildContext context) provider,
+    Widget child,
+  ) {
     return ChangeNotifierProvider<P>(
       create: provider,
       builder: (_, __) {
@@ -36,21 +36,50 @@ class AppRoute {
   Route<Object>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splashScreen:
-        return MaterialPageRoute(builder: (_) => SplashScreen());
+        return AppPageRoute(builder: (_) => SplashScreen());
       case homeScreen:
-        return MaterialPageRoute(
-            settings: settings,
+        Duration? duration;
+        if (settings.arguments != null) {
+          final args = settings.arguments as Map<String, dynamic>;
+          if ((args['isWithoutAnimation'] as bool)) {
+            duration = Duration.zero;
+          }
+        }
+        return AppPageRoute(
+            appTransitionDuration: duration,
+            appSettings: settings,
             builder: (_) => ChangeNotifierProvider(
-                create: (context) => HomeViewModel(context, Provider.of<TensorFlowService>(context, listen: false)),
+                create: (context) => HomeViewModel(context,
+                    Provider.of<TensorFlowService>(context, listen: false)),
                 builder: (_, __) => HomeScreen()));
       case localScreen:
-        return MaterialPageRoute(
-            settings: settings,
+        return AppPageRoute(
+            appSettings: settings,
             builder: (_) => ChangeNotifierProvider(
-                create: (context) => LocalViewModel(context, Provider.of<TensorFlowService>(context, listen: false)),
+                create: (context) => LocalViewModel(context,
+                    Provider.of<TensorFlowService>(context, listen: false)),
                 builder: (_, __) => LocalScreen()));
       default:
         return null;
     }
   }
+}
+
+class AppPageRoute extends MaterialPageRoute<Object> {
+  Duration? appTransitionDuration;
+
+  RouteSettings? appSettings;
+
+  AppPageRoute(
+      {required WidgetBuilder builder,
+      this.appSettings,
+      this.appTransitionDuration})
+      : super(builder: builder);
+
+  @override
+  Duration get transitionDuration =>
+      appTransitionDuration ?? super.transitionDuration;
+
+  @override
+  RouteSettings get settings => appSettings ?? super.settings;
 }

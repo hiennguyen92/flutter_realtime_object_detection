@@ -44,6 +44,11 @@ class NavigationService {
     );
   }
 
+  
+
+
+
+
   /// Push the route with the given name onto the navigator, and then remove all
   /// the previous routes until the `predicate` returns true.
   Future<T?> pushNamedAndRemoveUntil<T extends Object>(

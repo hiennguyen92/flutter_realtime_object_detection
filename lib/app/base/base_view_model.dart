@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 abstract class BaseViewModel<T> with ChangeNotifier {
 
+  bool _mounted = true;
+
   BuildContext _context;
 
   T _state;
+
+  bool get mounted => _mounted;
 
   bool _isLoading = false;
 
@@ -20,4 +24,10 @@ abstract class BaseViewModel<T> with ChangeNotifier {
   }
 
   BaseViewModel(this._context, this._state);
+
+  @override
+  void dispose() {
+    super.dispose();
+    _mounted = false;
+  }
 }

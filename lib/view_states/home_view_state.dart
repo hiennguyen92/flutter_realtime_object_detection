@@ -5,7 +5,7 @@ import '/models/recognition.dart';
 
 class HomeViewState {
 
-  ModelType type = ModelType.YOLO;
+  ModelType type;
 
   late List<Recognition> recognitions = <Recognition>[];
 
@@ -15,6 +15,8 @@ class HomeViewState {
 
 
   int cameraIndex = 0;
+
+  HomeViewState(this.type);
 
   bool isFrontCamera() {
     return cameraIndex == 1;

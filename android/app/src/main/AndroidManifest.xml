@@ -2,7 +2,8 @@
     package="com.hiennv.flutter_realtime_object_detection">
    <application
         android:label="flutter_realtime_object_detection"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:largeHeap="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
