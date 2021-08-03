@@ -64,6 +64,7 @@ flutter:
     - assets/models/mobilenet_v1.tflite
     - assets/models/posenet_mv1_checkpoints.tflite
     - assets/fonts/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

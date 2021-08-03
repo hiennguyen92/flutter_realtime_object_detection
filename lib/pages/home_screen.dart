@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +90,6 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   void dispose() {
     super.dispose();
     WidgetsBinding.instance?.removeObserver(this);
-    _cameraController.dispose();
     viewModel.close();
     apertureController.close();
   }
@@ -160,7 +160,9 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   handleSwitchSource(ModelType item) {
     viewModel.dispose();
     viewModel.updateTypeTfLite(item);
-    Provider.of<NavigationService>(context, listen: false).pushReplacementNamed(AppRoute.homeScreen, args: { 'isWithoutAnimation': true });
+    Provider.of<NavigationService>(context, listen: false).pushReplacementNamed(
+        AppRoute.homeScreen,
+        args: {'isWithoutAnimation': true});
   }
 
   Future<bool> handleCaptureClick() async {
@@ -172,11 +174,50 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
         final cameraImage = await _cameraController.takePicture();
         final bytes = await cameraImage.readAsBytes();
         final result2 = await ImageGallerySaver.saveImage(bytes,
-            quality: 100, name: 'realtime_object_detection_camera_${DateTime.now()}');
+            quality: 100,
+            name: 'realtime_object_detection_camera_${DateTime.now()}');
         print(result);
         print(result2);
+
+        await renderedImage(value, cameraImage);
       }
     });
+    return true;
+  }
+
+  Future<bool> renderedImage(Uint8List draw, XFile camera) async {
+    final recorder = PictureRecorder();
+    var decodedImage = await decodeImageFromList(await camera.readAsBytes());
+    final canvas = new Canvas(
+        recorder,
+        Rect.fromPoints(
+            new Offset(0.0, 0.0),
+            new Offset(decodedImage.width.toDouble(),
+                decodedImage.height.toDouble())));
+
+    Codec codec = await instantiateImageCodec(draw);
+
+    var image = (await codec.getNextFrame()).image;
+
+    canvas.drawImage(decodedImage, Offset(0.0, 0.0), Paint());
+
+    canvas.drawImage(image, Offset(50.0, 50.0), Paint());
+
+
+    canvas.save();
+    canvas.restore();
+
+
+    final picture = recorder.endRecording();
+
+    var img = await picture.toImage(200, 200);
+
+    final pngBytes = await img.toByteData(format: ImageByteFormat.png);
+
+    final result2 = await ImageGallerySaver.saveImage(Uint8List.view(pngBytes!.buffer),
+        quality: 100,
+        name: 'realtime_object_detection_camera_test_${DateTime.now()}');
+    print(result2);
     return true;
   }
 
