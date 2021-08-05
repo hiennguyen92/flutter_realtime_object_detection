@@ -101,7 +101,8 @@ class _LocalScreenState extends BaseStateful<LocalScreen, LocalViewModel> {
         extendBodyBehindAppBar: false,
         appBar: buildAppBarWidget(context),
         body: buildBodyWidget(context),
-        floatingActionButton: buildFloatingActionButton(context),
+        floatingActionButton: buildFloatingActionButton(context)
+    );
   }
 
   Widget buildFloatingActionButton(BuildContext context) {
