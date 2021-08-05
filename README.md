@@ -218,16 +218,16 @@ https://github.com/hiennguyen92/flutter_realtime_object_detection
 2. Image
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/master/images/image1.jpg" width="250"></td>
-    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/master/images/image2.jpg" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/main/images/image1.jpg" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/main/images/image2.jpg" width="250"></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/master/images/image3.jpg" width="250"></td>
-    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/master/images/image4.jpg" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/main/images/image3.jpg" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/main/images/image4.jpg" width="250"></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/master/images/image5.jpg" width="250"></td>
-    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/master/images/image6.jpg" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/main/images/image5.jpg" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/hiennguyen92/flutter_realtime_object_detection/main/images/image6.jpg" width="250"></td>
   </tr>
  </table>
 
