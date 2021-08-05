@@ -7,6 +7,7 @@ import 'package:flutter_realtime_object_detection/services/tensorflow_service.da
 import 'package:flutter_realtime_object_detection/view_models/local_view_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LocalScreen extends StatefulWidget {
   @override
@@ -67,6 +68,12 @@ class _LocalScreenState extends BaseStateful<LocalScreen, LocalViewModel> {
     runModel(viewModel.state.imageSelected!);
   }
 
+  _gotoRepo() async {
+    if (await canLaunch(AppStrings.urlRepo)) {
+      await launch(AppStrings.urlRepo);
+    } else {}
+  }
+
   @override
   AppBar buildAppBarWidget(BuildContext context) {
     return AppBar(
@@ -74,7 +81,9 @@ class _LocalScreenState extends BaseStateful<LocalScreen, LocalViewModel> {
       centerTitle: true,
       actions: [
         IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _gotoRepo();
+            },
             icon: Icon(AppIcons.linkOption, semanticLabel: 'Repo'))
       ],
       backgroundColor: AppColors.blue,
@@ -87,6 +96,14 @@ class _LocalScreenState extends BaseStateful<LocalScreen, LocalViewModel> {
   }
 
   @override
+  Widget buildPageWidget(BuildContext context) {
+    return Scaffold(
+        extendBodyBehindAppBar: false,
+        appBar: buildAppBarWidget(context),
+        body: buildBodyWidget(context),
+        floatingActionButton: buildFloatingActionButton(context),
+  }
+
   Widget buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       child: Icon(

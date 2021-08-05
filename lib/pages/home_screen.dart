@@ -169,24 +169,14 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
   Future<bool> handleCaptureClick() async {
     screenshotController.capture().then((value) async {
       if (value != null) {
-        // final result = await ImageGallerySaver.saveImage(value,
-        //     quality: 100, name: 'realtime_object_detection_${DateTime.now()}');
-
         final cameraImage = await _cameraController.takePicture();
-        // final bytes = await cameraImage.readAsBytes();
-        // final result2 = await ImageGallerySaver.saveImage(bytes,
-        //     quality: 100,
-        //     name: 'realtime_object_detection_camera_${DateTime.now()}');
-        // print(result);
-        // print(result2);
-
-        await renderedImage(value, cameraImage);
+        await renderedAndSaveImage(value, cameraImage);
       }
     });
     return true;
   }
 
-  Future<bool> renderedImage(Uint8List draw, XFile camera) async {
+  Future<bool> renderedAndSaveImage(Uint8List draw, XFile camera) async {
     UI.Image cameraImage = await decodeImageFromList(await camera.readAsBytes());
 
     UI.Codec codec = await UI.instantiateImageCodec(draw);
@@ -194,9 +184,6 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
 
     var cameraRatio = cameraImage.height / cameraImage.width;
     var previewRatio = detectionImage.height / detectionImage.width;
-
-    print('H-W-Camera - ${cameraImage.height} - ${cameraImage.width}');
-    print('H-W-Image - ${detectionImage.height} - ${detectionImage.width}');
 
     double scaleWidth, scaleHeight;
     if (cameraRatio > previewRatio) {
@@ -208,7 +195,7 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
     }
     var difW = (scaleWidth - cameraImage.width) / 2;
     var difH = (scaleHeight - cameraImage.height) / 2;
-    print('=> - $scaleHeight - $scaleWidth - $difH - $difW');
+
     final recorder = UI.PictureRecorder();
     final canvas = new Canvas(
         recorder,
@@ -217,13 +204,12 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
             new Offset(cameraImage.width.toDouble(),
                 cameraImage.height.toDouble())));
 
-    canvas.drawImage(cameraImage, Offset(0.0, 0.0), Paint());
+    canvas.drawImage(cameraImage, Offset.zero, Paint());
 
+    codec = await UI.instantiateImageCodec(draw, targetWidth: scaleWidth.toInt(), targetHeight: scaleHeight.toInt());
+    detectionImage = (await codec.getNextFrame()).image;
 
-    UI.Codec codecResize = await UI.instantiateImageCodec(draw, targetWidth: scaleWidth.toInt(), targetHeight: scaleHeight.toInt());
-    var detectionImageResize = (await codecResize.getNextFrame()).image;
-
-    canvas.drawImage(detectionImageResize, Offset(difW.abs(), difH.abs()), Paint());
+    canvas.drawImage(detectionImage, Offset(difW.abs(), difH.abs()), Paint());
 
     canvas.save();
     canvas.restore();
@@ -236,48 +222,9 @@ class _HomeScreenState extends BaseStateful<HomeScreen, HomeViewModel>
 
     final result2 = await ImageGallerySaver.saveImage(Uint8List.view(pngBytes!.buffer),
         quality: 100,
-        name: 'realtime_object_detection_camera_test_${DateTime.now()}');
+        name: 'realtime_object_detection_${DateTime.now()}');
     print(result2);
-
-
     return true;
-    // var screenWidth = ScreenUtil().screenWidth;
-    // final recorder = UI.PictureRecorder();
-    // var decodedImage = await decodeImageFromList(await camera.readAsBytes());
-    //
-    // UI.Codec codec = await UI.instantiateImageCodec(draw, targetWidth: screenWidth.toInt());
-    //
-    // var image = (await codec.getNextFrame()).image;
-    //
-    // final canvas = new Canvas(
-    //     recorder,
-    //     Rect.fromPoints(
-    //         new Offset(0.0, 0.0),
-    //         new Offset(image.width.toDouble(),
-    //             image.height.toDouble())));
-    //
-    //
-    //
-    // canvas.drawImage(decodedImage, Offset(0.0, 0.0), Paint());
-    //
-    // canvas.drawImage(image, Offset(0, 0), Paint());
-    //
-    //
-    // canvas.save();
-    // canvas.restore();
-    //
-    //
-    // final picture = recorder.endRecording();
-    //
-    // var img = await picture.toImage(decodedImage.width, decodedImage.height);
-    //
-    // final pngBytes = await img.toByteData(format: UI.ImageByteFormat.png);
-    //
-    // final result2 = await ImageGallerySaver.saveImage(Uint8List.view(pngBytes!.buffer),
-    //     quality: 100,
-    //     name: 'realtime_object_detection_camera_test_${DateTime.now()}');
-    // print(result2);
-    // return true;
   }
 
   _gotoRepo() async {
